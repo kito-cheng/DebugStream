@@ -1,9 +1,11 @@
 #ifndef __DEBUGSTREAM_HPP__
 #define __DEBUGSTREAM_HPP__
+
 #include <iostream>
 #include <iomanip>
 #include <cstdio>
 #include <cstdarg>
+
 class DebugStream {
   public:
     enum {
@@ -16,25 +18,29 @@ class DebugStream {
     };
     class DSAgent{
       public:
-        DSAgent(bool out, std::ostream &os): _out(out), _os(os){};
+        DSAgent(bool out, const std::string &tag, std::ostream &os)
+          : _out(out)
+          , _tag(tag)
+          , _os(os){};
         template<class T>
-        const DSAgent& operator<<(const T &o) const{
-          if(_out) _os << o;
+        DSAgent& operator<<(const T &o) {
+          if(_out) _os << _tag << o;
+          _tag = "";
           return *this;
         }
-        const DSAgent& operator<< (std::ostream& ( *pf )(std::ostream&)) const{
+        DSAgent& operator<< (std::ostream& ( *pf )(std::ostream&)) {
           if(_out) _os << pf;
           return *this;
         };
-        const DSAgent& operator<< (std::ios& ( *pf )(std::ios&)) const{
+        DSAgent& operator<< (std::ios& ( *pf )(std::ios&)) {
           if(_out) _os << pf;
           return *this;
         };
-        const DSAgent& operator<< (std::ios_base& ( *pf )(std::ios_base&)) const{
+        DSAgent& operator<< (std::ios_base& ( *pf )(std::ios_base&)) {
           if(_out) _os << pf;
           return *this;
         };
-        int printf(const char *fmt, ...) const
+        int printf(const char *fmt, ...)
 #ifdef __GNUC__
           __attribute__((format(printf, 2, 3)))
              /* 1 -> this pointer
@@ -44,6 +50,8 @@ class DebugStream {
 #endif
         {
           if(!_out) return 0;
+          _os << _tag;
+          _tag = "";
           char buf[MAX_BUFFER_SIZE];
           va_list args;
           va_start (args, fmt);
@@ -61,14 +69,14 @@ class DebugStream {
         }
       private:
         bool _out;
+        std::string _tag;
         std::ostream &_os;
     };
-    DebugStream(int debugLevel=0,
-                std::ostream &os = std::cerr)
-      :_os(os)
-      ,_debugLevel(debugLevel){};
-    const DSAgent operator [](int msgLevel) {
-      return DSAgent(msgLevel <= _debugLevel, _os);
+    DebugStream(const std::string &tag = "",
+                int debugLevel=0,
+                std::ostream &os = std::cerr);
+    DSAgent operator [](int msgLevel) {
+      return DSAgent(msgLevel <= _debugLevel, _ptag, _os);
     }
     void setLevel(int l){_debugLevel = l;}
     int getLevel(){return _debugLevel;}
@@ -88,6 +96,8 @@ class DebugStream {
     }
   private:
     std::ostream &_os;
+    std::string _tag;
+    std::string _ptag;
     int _debugLevel;
 };
 

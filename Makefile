@@ -1,13 +1,19 @@
-CXX=clang++
-CXXFLAGS=-Wall
+CXX=g++
+CXXFLAGS=-Wall -O0 -g3
+OBJS= DebugStream.o DebugStreamManager.o DebugStreamTest.o
+all: DebugStreamTest
 
-all: DebugStream
+DebugStreamTest: $(OBJS)
+	$(CXX) -o DebugStreamTest $(LDFLAGS) $(OBJS)
 
-DebugStream: DebugStream.o
-	$(CXX) -o DebugStream $(CXXFLAGS) DebugStream.o
+DebugStreamTest.o: DebugStreamTest.cpp DebugStream.hpp DebugStreamManager.hpp
+	$(CXX) -o DebugStreamTest.o $(CXXFLAGS) DebugStreamTest.cpp -c
 
 DebugStream.o: DebugStream.cpp DebugStream.hpp
 	$(CXX) -o DebugStream.o $(CXXFLAGS) DebugStream.cpp -c
+
+DebugStreamManager.o: DebugStreamManager.cpp DebugStreamManager.hpp
+	$(CXX) -o DebugStreamManager.o $(CXXFLAGS) DebugStreamManager.cpp -c
 
 clean:
 	@rm -f *.o DebugStream
