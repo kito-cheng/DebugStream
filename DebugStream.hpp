@@ -18,26 +18,26 @@ class DebugStream {
     };
     class DSAgent{
       public:
-        DSAgent(bool out, const std::string &tag, std::ostream &os)
+        DSAgent(bool out, const std::string &tag, std::ostream *os)
           : _out(out)
           , _tag(tag)
           , _os(os){};
         template<class T>
         DSAgent& operator<<(const T &o) {
-          if(_out) _os << _tag << o;
+          if(_out) *_os << _tag << o;
           _tag = "";
           return *this;
         }
         DSAgent& operator<< (std::ostream& ( *pf )(std::ostream&)) {
-          if(_out) _os << pf;
+          if(_out) *_os << pf;
           return *this;
         };
         DSAgent& operator<< (std::ios& ( *pf )(std::ios&)) {
-          if(_out) _os << pf;
+          if(_out) *_os << pf;
           return *this;
         };
         DSAgent& operator<< (std::ios_base& ( *pf )(std::ios_base&)) {
-          if(_out) _os << pf;
+          if(_out) *_os << pf;
           return *this;
         };
         int printf(const char *fmt, ...)
@@ -50,7 +50,7 @@ class DebugStream {
 #endif
         {
           if(!_out) return 0;
-          _os << _tag;
+          *_os << _tag;
           _tag = "";
           char buf[MAX_BUFFER_SIZE];
           va_list args;
@@ -59,10 +59,10 @@ class DebugStream {
           if (ret>MAX_BUFFER_SIZE) {
             char *long_buf = new char[ret];
             ret = std::vsprintf (long_buf, fmt, args);
-            _os << long_buf;
+            *_os << long_buf;
             delete long_buf;
           } else {
-            _os << buf;
+            *_os << buf;
           }
           va_end (args);
           return ret;
@@ -70,11 +70,12 @@ class DebugStream {
       private:
         bool _out;
         std::string _tag;
-        std::ostream &_os;
+        std::ostream *_os;
     };
     DebugStream(const std::string &tag = "",
                 int debugLevel=0,
-                std::ostream &os = std::cerr);
+                std::ostream *os = &std::cerr);
+    ~DebugStream();
     DSAgent operator [](int msgLevel) {
       return DSAgent(msgLevel <= _debugLevel, _ptag, _os);
     }
@@ -82,20 +83,22 @@ class DebugStream {
     int getLevel(){return _debugLevel;}
     bool verbose(int v){return v<=_debugLevel;}
     std::streamsize precision ( std::streamsize prec ) {
-      return _os.precision(prec);
+      return _os->precision(prec);
     }
-    std::streamsize precision ( ) const{return _os.precision();}
-    std::streamsize width ( ) const{return _os.width();}
-    std::streamsize width ( std::streamsize wide ){return _os.width(wide);}
+    std::streamsize precision ( ) const{return _os->precision();}
+    std::streamsize width ( ) const{return _os->width();}
+    std::streamsize width ( std::streamsize wide ){return _os->width(wide);}
     std::ios_base::fmtflags setf ( std::ios_base::fmtflags fmtfl ) {
-      return _os.setf(fmtfl);
+      return _os->setf(fmtfl);
     }
     std::ios_base::fmtflags setf ( std::ios_base::fmtflags fmtfl,
                                    std::ios_base::fmtflags mask ){
-      return _os.setf(fmtfl, mask);
+      return _os->setf(fmtfl, mask);
     }
+
+    const std::string &getTag() const {return _tag;}
   private:
-    std::ostream &_os;
+    std::ostream *_os;
     std::string _tag;
     std::string _ptag;
     int _debugLevel;

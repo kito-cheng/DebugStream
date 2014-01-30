@@ -1,4 +1,4 @@
-CXX=g++
+CXX=clang++
 CXXFLAGS=-Wall -O0 -g3
 OBJS= DebugStream.o DebugStreamManager.o DebugStreamTest.o
 all: DebugStreamTest

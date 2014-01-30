@@ -10,7 +10,8 @@ class DebugStreamManager {
 public:
   typedef std::multimap<std::string, DebugStream*> Map;
   static DebugStreamManager &instance();
-  void add(DebugStream *ds, const std::string &tag);
+  void add(DebugStream *ds);
+  void remove(DebugStream *ds);
   void set(const std::string &tag, int level);
 private:
   DebugStreamManager();
