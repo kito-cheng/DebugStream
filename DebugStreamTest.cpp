@@ -3,9 +3,9 @@
 #include  <iomanip>
 DebugStream ds("tag");
 int main(){
-  DebugStreamManager::instance().set("tag", 10);
-  ds[3] << "fuck " << "abc\n";
-  ds[11] << "XD\n";
+  DebugStreamManager::instance().set("tag", DebugStream::VERBOSE);
+  ds.debug() << "fuck " << "abc\n";
+  ds.verbose() << "XD\n";
   ds[8] << 123 << std::endl;
   ds.precision(2);
   ds[5] << 0.54321 << std::endl;

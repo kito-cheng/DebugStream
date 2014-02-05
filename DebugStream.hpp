@@ -76,6 +76,21 @@ class DebugStream {
                 int debugLevel=0,
                 std::ostream *os = &std::cerr);
     ~DebugStream();
+    DSAgent debug() {
+      return DSAgent(DEBUG <= _debugLevel, _ptag, _os);
+    }
+    DSAgent verbose() {
+      return DSAgent(VERBOSE <= _debugLevel, _ptag, _os);
+    }
+    DSAgent info() {
+      return DSAgent(INFO <= _debugLevel, _ptag, _os);
+    }
+    DSAgent warning() {
+      return DSAgent(WARNING <= _debugLevel, _ptag, _os);
+    }
+    DSAgent error() {
+      return DSAgent(ERROR <= _debugLevel, _ptag, _os);
+    }
     DSAgent operator [](int msgLevel) {
       return DSAgent(msgLevel <= _debugLevel, _ptag, _os);
     }
